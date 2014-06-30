@@ -64,7 +64,7 @@
     "vhost": "^1.0.0",
     "client-sessions": "^0.6.0",
     "jira" : "*",
-    "moment" : "*"
+    "moment" : "*",
     "xlsjs" : "*"
   },
   "devDependencies": {
