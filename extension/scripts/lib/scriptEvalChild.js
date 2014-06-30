@@ -1,8 +1,8 @@
 ﻿process.on('message', function (m) {
     try {
-        
+
         var _require = function (moduleName) {
-            var allowedModules = ["handlebars", "request-json", "feedparser", "request", "underscore"];
+            var allowedModules = ["handlebars", "request-json", "feedparser", "request", "underscore", "underscore.string", "jira", "moment","synchronize"  ];
 
             if (allowedModules.filter(function (mod) { return mod == moduleName; }).length == 1) {
                 return require(moduleName);
@@ -10,7 +10,7 @@
 
             throw new Error("Unsupported module " + moduleName);
         };
-        
+
         var vm = require('vm');
         var sandbox = {
             request: m.request,

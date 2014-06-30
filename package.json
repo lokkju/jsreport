@@ -57,6 +57,7 @@
     "string": "*",
     "stringformat": "*",
     "underscore": "*",
+    "underscore.string": "*",
     "url": "*",
     "uuid": "*",
     "validator": "*",
@@ -68,7 +69,9 @@
     "body-parser": "^1.0.1",
     "serve-static": "^1.0.4",
     "vhost": "^1.0.0",
-    "client-sessions": "^0.6.0"
+    "client-sessions": "^0.6.0",
+    "jira" : "*",
+    "moment" : "*"
   },
   "devDependencies": {
     "chai": "*",
