@@ -11,24 +11,21 @@ var childProcess = require('child_process'),
     binPath = phantomjs.path,
     path = require("path"),
     join = path.join,
-    winston = require("winston"),
     fs = require("fs"),
     _ = require("underscore"),
-    Q = require("q"),
+    q = require("q"),
     FS = require("q-io/fs"),
     extend = require("node.extend");
 
-var logger = winston.loggers.get('jsreport');
-
-module.exports = Phantom = function(reporter, definition) {
+module.exports = function(reporter, definition) {
     reporter[definition.name] = new Phantom(reporter, definition);
 
-    if (!fs.existsSync("data/temp")) {
-        fs.mkdir("data/temp");
+    if (!fs.existsSync(join(reporter.options.rootDirectory, "data", "temp"))) {
+        fs.mkdir(join(reporter.options.rootDirectory, "data", "temp"));
     }
 };
 
-Phantom = function(reporter, definition) {
+var Phantom = function(reporter, definition) {
     this.reporter = reporter;
 
     reporter.extensionsManager.recipes.push({
@@ -36,7 +33,7 @@ Phantom = function(reporter, definition) {
         execute: Phantom.prototype.execute.bind(this)
     });
 
-    this.PhantomType = $data.Class.define(reporter.extendGlobalTypeName("$entity.Phantom"), $data.Entity, null, {
+    this.PhantomType = this.reporter.dataProvider.createEntityType("PhantomType", {
         margin: { type: "string" },
         header: { type: "string" },
         headerHeight: { type: "string" },
@@ -46,7 +43,7 @@ Phantom = function(reporter, definition) {
         format: { type: "string" },
         width: { type: "string" },
         height: { type: "string" }
-    }, null);
+    });
 
     reporter.templates.TemplateType.addMember("phantom", { type: this.PhantomType });
 
@@ -58,7 +55,7 @@ Phantom = function(reporter, definition) {
 
 Phantom.prototype.execute = function(request, response) {
     var self = this;
-    logger.info("Pdf recipe start.");
+    this.reporter.logger.info("Pdf recipe start.");
 
     request.template.phantom = request.template.phantom || new self.PhantomType();
     
@@ -72,7 +69,7 @@ Phantom.prototype.execute = function(request, response) {
         .then(function() { return self._processHeaderFooter(request, generationId, "footer"); })
         .then(function() {
             
-            return Q.nfcall(function(cb) {
+            return q.nfcall(function(cb) {
                 var childArgs = [	
 		            '--ignore-ssl-errors=yes',
                     '--web-security=false',
@@ -91,10 +88,10 @@ Phantom.prototype.execute = function(request, response) {
                 ];
 
                 childProcess.execFile(binPath, childArgs, function(error, stdout, stderr) {
-                    logger.info("Rastering pdf child process end.");
+                    self.reporter.logger.info("Rastering pdf child process end.");
 
                     if (error !== null) {
-                        logger.error('exec error: ' + error);
+                        self.reporter.logger.error('exec error: ' + error);
                         return cb(error);
                     }
 
@@ -103,7 +100,7 @@ Phantom.prototype.execute = function(request, response) {
                     response.headers["File-Extension"] = "pdf";
                     response.isStream = true;
 
-                    logger.info("Rendering pdf end.");
+                    self.reporter.logger.info("Rendering pdf end.");
                     return cb();
                 });
             });
@@ -111,8 +108,8 @@ Phantom.prototype.execute = function(request, response) {
 };
 
 Phantom.prototype._processHeaderFooter = function(request, generationId, type) {
-    if (request.template.phantom[type] == null)
-        return Q(null);
+    if (!request.template.phantom[type])
+        return q(null);
 
     var req = extend(true, {}, request);
     req.template = { content: request.template.phantom[type], recipe: "html" };

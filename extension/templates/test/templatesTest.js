@@ -1,11 +1,13 @@
-﻿var assert = require("assert"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+var assert = require("assert"),
     fs = require('fs'),
     path = require("path"),
     Q = require("q"),
     jaydata = require("odata-server"),
     describeReporting = require("../../../test/helpers.js").describeReporting;
 
-describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
+describeReporting(path.join(__dirname, "../../"), ["templates"], function(reporter) {
 
     describe('templating', function() {
 

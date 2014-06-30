@@ -2,22 +2,18 @@
  * Copyright(c) 2014 Jan Blaha 
  *
  * Sample report used in standard and multitenant version
- */ 
+ */
 
-var winston = require("winston"),
-    util = require("util"),
+var util = require("util"),
     async = require("async"),
     _ = require("underscore"),
     join = require("path").join,
     fs = require("fs"),
     Q = require("q");
 
+module.exports = function (reporter, definition) {
 
-var logger = winston.loggers.get('jsreport');
-
-module.exports = function(reporter, definition) {
-
-    this.reporter.initializeListener.add(definition.name, this, function() {
+    reporter.initializeListener.add(definition.name, this, function () {
 
         if (!reporter.settings.get("sample-created")) {
             var dataObj = {
@@ -36,12 +32,14 @@ module.exports = function(reporter, definition) {
                 }
             };
 
-            return reporter.data.create(reporter.context, dataObj)
-                .then(function(dataItemEntity) {
-                    templateObj.dataItemId = dataItemEntity.shortid;
-                    return reporter.templates.create(templateObj);
-                }).then(function() {
-                    return reporter.settings.add("sample-created", true);
+            return reporter.dataProvider.startContext()
+                .then(function (context) {
+                    return reporter.data.create(context, dataObj).then(function (dataItemEntity) {
+                        templateObj.dataItemId = dataItemEntity.shortid;
+                        return reporter.templates.create(context, templateObj);
+                    }).then(function () {
+                        return reporter.settings.add("sample-created", true);
+                    });
                 });
         }
     });

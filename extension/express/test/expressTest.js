@@ -1,4 +1,6 @@
-﻿var assert = require("assert"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+var assert = require("assert"),
     fs = require('fs'),
     async = require("async"),
     path = require("path"),
@@ -7,7 +9,7 @@
     Q = require("q"),
     supertest = require('supertest');
 
-describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
+describeReporting(path.join(__dirname, "../../"), ["html", "express", "templates"], function(reporter) {
 
     describe('express', function() {
 
@@ -27,6 +29,20 @@ describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
             supertest(reporter.options.express.app)
                 .get('/api/recipe')
                 .expect(200, done);
+        });
+
+        it('/api/version should return a package.json version', function(done) {
+            supertest(reporter.options.express.app)
+                .get('/api/version')
+                .expect(200, require("../../../package.json").version)
+                .end(function(err, res) {
+                    if (err) {
+                        done(err);
+                    } else {
+                        done();
+                    }
+                });
+
         });
 
         it('/api/report should render report', function(done) {

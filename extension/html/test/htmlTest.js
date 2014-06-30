@@ -1,11 +1,13 @@
-﻿var assert = require("assert"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+var assert = require("assert"),
     fs = require('fs'),
     _ = require('underscore'),
     path = require("path"),
     Html = require("../lib/html.js"),
     describeReporting = require("../../../test/helpers.js").describeReporting;
 
-describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
+describeReporting(path.join(__dirname, "../../"), ["html"], function(reporter) {
     describe('html', function() {
 
         beforeEach(function() {

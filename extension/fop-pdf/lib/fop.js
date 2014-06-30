@@ -7,25 +7,21 @@
 var childProcess = require('child_process'),
     shortid = require("shortid"),
     join = require("path").join,
-    winston = require("winston"),
     fs = require("fs"),
     _ = require("underscore"),
     Q = require("q"),
     FS = require("q-io/fs");
 
-var logger = winston.loggers.get('jsreport');
-
-
-module.exports = Fop = function(reporter) {
-    if (!fs.existsSync(join("data/temp"))) {
-        fs.mkdir(join("data/temp"));
+var Fop = module.exports = function(reporter) {
+    if (!fs.existsSync(join(reporter.options.rootDirectory, "data", "temp"))) {
+        fs.mkdir(join(reporter.options.rootDirectory, "data", "temp"));
     }
 
     reporter.extensionsManager.recipes.push({
         name: "fop-pdf",
 
         execute: function(request, response) {
-            logger.info("Rendering fop start.");
+            reporter.logger.info("Rendering fop start.");
 
             var foFilePath = join("data/temp", shortid.generate() + ".fo");
             var htmlRecipe = _.findWhere(reporter.extensionsManager.recipes, { name: "html" });
@@ -35,7 +31,7 @@ module.exports = Fop = function(reporter) {
                 .then(function() { return FS.write(foFilePath, response.result); })
                 .then(function() {
                     return Q.nfcall(function(cb) {
-                        logger.info("Rastering pdf child process start.");
+                        reporter.logger.info("Rastering pdf child process start.");
 
                         var childArgs = [
                             "-fo",
@@ -45,10 +41,11 @@ module.exports = Fop = function(reporter) {
                         ];
 
                         childProcess.execFile("fop.bat", childArgs, function(error, stdout, stderr) {
-                            logger.info("Rastering pdf child process end.");
+                            reporter.logger.info("Rastering pdf child process end.");
 
                             if (error !== null) {
-                                logger.error('exec error: ' + error);
+                                reporter.logger.error('exec error: ' + error);
+                                error.weak = true;
                                 return cb(error);
                             }
 
@@ -62,7 +59,7 @@ module.exports = Fop = function(reporter) {
                             response.headers["File-Extension"] = "pdf";
                             response.isStream = true;
 
-                            logger.info("Rendering pdf end.");
+                            reporter.logger.info("Rendering pdf end.");
                             return cb(null, response);
                         });
                     });

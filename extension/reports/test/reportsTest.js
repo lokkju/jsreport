@@ -1,15 +1,16 @@
-﻿var assert = require("assert"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+var assert = require("assert"),
     fs = require('fs'),
     async = require("async"),
     join = require("path").join,
     path = require("path"),
     describeReporting = require("../../../test/helpers.js").describeReporting,
-    Q = require("q"),
     supertest = require('supertest');
 
-describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
+describeReporting(path.join(__dirname, "../../"), ["templates", "express", "reports"], function(reporter) {
 
-    describe('reporting', function() {
+    describe('with reports extension', function() {
 
         it('should insert report to storage', function(done) {
 
@@ -23,7 +24,7 @@ describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
                 headers: {}
             };
             var response = {
-                result: "Hey",
+                result: new Buffer("Hey"),
                 headers: {}
             };
 
@@ -46,5 +47,7 @@ describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
                     });
             });
         });
+
     });
 });
+

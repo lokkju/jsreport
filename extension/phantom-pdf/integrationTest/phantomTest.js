@@ -1,11 +1,13 @@
-﻿var assert = require("assert"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+var assert = require("assert"),
     fs = require('fs'),
     path = require("path"),
     _ = require("underscore"),
     Phantom = require("../lib/phantom.js"),
     describeReporting = require("../../../test/helpers.js").describeReporting;
 
-describeReporting(path.join(__dirname, "../../"), [], function(reporter) {
+describeReporting(path.join(__dirname, "../../"), ["html", "templates", "phantom-pdf"], function(reporter) {
     describe('phantom pdf', function () {
      
         it('should not fail when rendering', function(done) {

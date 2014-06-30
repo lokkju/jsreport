@@ -1,20 +1,27 @@
-﻿var assert = require("assert"),
-    Reporter = require("../lib/reporter.js"),
-    fs = require('fs'),
-    join = require("path").join,
-    util = require("../lib/util/util.js"),
+﻿/*globals describe, it, beforeEach, afterEach */
+
+
+if (process.env.DB === "neDB")
+    return;
+
+var assert = require("assert"),
     shortid = require("shortid"),
     GridFS = require("../lib/blobStorage/gridFS.js"),
-    MemoryStream = require('memorystream'),
     Readable = require("stream").Readable,
-    MongoClient = require("mongodb").MongoClient;
-
+    DataProvider = require("../lib/dataProvider.js"),
+    connectionString = require("./helpers.js").connectionString;
 
 describe('gridFS', function() {
 
-    beforeEach(function() {
+    beforeEach(function(done) {
         var self = this;
-        self.blobStorage = new GridFS({ name: "mongoDB", databaseName: "test", address: "127.0.0.1", port: 27017 });
+        self.dataProvider = new DataProvider(connectionString);
+        self.dataProvider.buildContext();
+
+        self.dataProvider.dropStore().then(function() {
+            self.blobStorage = new GridFS(connectionString);
+            done();
+        });
     });
 
     it('write and read should result into equal string', function(done) {
@@ -34,7 +41,7 @@ describe('gridFS', function() {
                 stream.resume();
                 stream.on('data', function(buf) { content += buf.toString(); });
                 stream.on('end', function() {
-                    assert.equal("Hula", content);  
+                    assert.equal(content, "Hula");
                     done();
                 });
             });
