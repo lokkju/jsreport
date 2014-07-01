@@ -1,5 +1,5 @@
-﻿/*! 
- * Copyright(c) 2014 Jan Blaha 
+﻿/*!
+ * Copyright(c) 2014 Jan Blaha
  *
  * Extension allowing to run custom scripts and modify request before rendering process starts.
  */
@@ -22,7 +22,7 @@ var Scripts = function (reporter, definition) {
 
     this.reporter.beforeRenderListeners.add(definition.name, this, Scripts.prototype.handleBeforeRender);
 
-    this.allowedModules = ["handlebars", "request-json", "feedparser", "request", "underscore", "underscore.string", "jira", "moment","synchronize"  ];
+    this.allowedModules = this.reporter.options.allowedModules || ["handlebars", "request-json", "feedparser", "request" ];
 };
 
 Scripts.prototype.create = function (context, script) {
